@@ -10,6 +10,22 @@ from selenium.common.exceptions import StaleElementReferenceException
 #BeautifulSoup 
 from bs4 import BeautifulSoup
 
+#CSV library for creating the csv file
+import csv
+
+"""
+        
+        Extract all the links to each pc from the product listing pages ** Done
+        Extract the technical data for each pc as well as its price and availability ** Done
+        Store the newly aquired data in a .csv or .excel file ** Done
+
+        // TO DO
+        Replace accented character with their normal equivalant
+        make the script repeat all this tasks for pc_product provided by 
+
+        
+"""
+
 
 PATH =r"C:\Users\Mohamed\Desktop\courses\python_projects\chromedriver.exe"
 
@@ -54,6 +70,14 @@ def get_product_details(driver,link):
     spec_dict["prix"] = prix
     return spec_dict  
 
+def productsToFile(products):
+    with open("products.csv","a") as csvfile:
+        #specifying the file columns names
+        fieldnames = list(products[0].keys())
+        writer = csv.DictWriter(csvfile,fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(products)
+
 
 def main():
     home_page = ""
@@ -79,23 +103,17 @@ def main():
         # Check the number of product pages in the site
         print(check_next_page(driver)) 
         
-        
 
-        #pc_links = get_products(driver)
-        #for pc_link in pc_links:
-        #    products.append(get_product_details(driver,pc_link))
+        # currently using only one product to test functionality
         
-        #print(products[0])
+        pc_links = get_products(driver)
+        for pc_link in pc_links:
+            products.append(get_product_details(driver,pc_link))
+            break 
+
+        productsToFile(products)
+
         driver.quit()
-        """
-        // TO DO
-        Extract all the links to each pc from the product listing pages
-        Extract the technical data for each pc as well as its price and availability
-        Store the newly aquired data in a .csv or .excel file
-        make the script repeat all this tasks for pc_product provided by 
-
-        
-        """
 
     except NoSuchElementException:
         pass
