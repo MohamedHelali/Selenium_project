@@ -88,11 +88,18 @@ def get_product_details(driver,link):
     spec_dict["Prix_DT"] = prix
     return spec_dict  
 
-def productsToFile(products):
+# determine the output file header based on the various product specs
+def file_Header(products):
+    filednames=[]
+    for product in products:
+        for field in list(product.keys()):
+            if field not in filednames:
+                filednames.append(field)
+    return filednames
+
+def productsToFile(products,fieldnames):
     
     with open("products.csv","w") as csvfile:
-        #specifying the file columns names
-        fieldnames = list(products[0].keys())
         writer = csv.DictWriter(csvfile,fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(products)
@@ -122,23 +129,28 @@ def main():
         # Check the number of product pages in the site
         #print(check_next_page(driver)) 
         
+        while True:
+            # currently using only one product to test functionality
+            pc_links = get_products(driver)
+            for pc_link in pc_links:
+                products.append(get_product_details(driver,pc_link))
+                #break 
+            
+            #return the catalogue page
+            driver.get(home_page)
+            # Testing moving through the cataloque pages  
+            if check_next_page(driver):
+                break
+                click_next_page(driver)
+                home_page = driver.current_url
+            else:
+                break
+        #identify the header for the output file 
+        fieldnames = file_Header(products)
 
-        # currently using only one product to test functionality
-        pc_links = get_products(driver)
-        for pc_link in pc_links:
-            products.append(get_product_details(driver,pc_link))
-            break 
-        
-        #return the catalogue page
-        driver.get(home_page)
-        # Testing moving through the cataloque pages  
-        if check_next_page(driver):
-            click_next_page(driver)
-            home_page = driver.current_url
+        productsToFile(products,fieldnames)
 
-        productsToFile(products)
-
-        #driver.quit()
+        driver.quit()
 
     except NoSuchElementException:
         pass
