@@ -13,6 +13,9 @@ from bs4 import BeautifulSoup
 #CSV library for creating the csv file
 import csv
 
+# unicodedata library is used to remove (normalize) accents
+import unicodedata
+
 """
         
         Extract all the links to each pc from the product listing pages ** Done
@@ -31,6 +34,7 @@ PATH =r"C:\Users\Mohamed\Desktop\courses\python_projects\chromedriver.exe"
 
 
 def check_next_page(driver):
+
     soup = BeautifulSoup(driver.page_source,"html.parser")
     hrs=soup.find("ul",{"class":"items pages-items"})
     next_page = hrs.find("li",{"class":"item pages-item-next"})
@@ -38,15 +42,20 @@ def check_next_page(driver):
         return True
     return False
 
+def remove_accent(name):
+    nfkd_form = unicodedata.normalize('NFKD',name)
+    return u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
+
 
 
 def get_products(driver):
-    links=[]
+
     soup = BeautifulSoup(driver.page_source,"html.parser")
     a_tags = soup.find_all("a",{"class":"product-item-link"},href=True)
     return [a["href"] for a in a_tags]
 
 def get_product_details(driver,link):
+
     spec_dict={}
     driver.get(link)
     #ref = driver.find_element(By.CLASS_NAME,"value").text
@@ -61,17 +70,18 @@ def get_product_details(driver,link):
     #Extracting lines of the table
     lines = spec_table.tbody.find_all('tr')
     for line in lines:
-        key = line.find("th").text.strip()
-        val = line.find("td").text.strip()
+        key = remove_accent(line.find("th").text.strip())
+        val = remove_accent(line.find("td").text.strip())
         spec_dict[key] = val
     
     #Extracting the product price
     prix = soup.find("span",{"class":"price"}).text.strip().replace("\xa0", " ")
-    spec_dict["prix"] = prix
+    spec_dict["Prix"] = prix
     return spec_dict  
 
 def productsToFile(products):
-    with open("products.csv","a") as csvfile:
+    
+    with open("products.csv","w") as csvfile:
         #specifying the file columns names
         fieldnames = list(products[0].keys())
         writer = csv.DictWriter(csvfile,fieldnames=fieldnames)
@@ -105,7 +115,7 @@ def main():
         
 
         # currently using only one product to test functionality
-        
+
         pc_links = get_products(driver)
         for pc_link in pc_links:
             products.append(get_product_details(driver,pc_link))
