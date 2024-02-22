@@ -33,6 +33,7 @@ import unicodedata
 PATH =r"C:\Users\Mohamed\Desktop\courses\python_projects\chromedriver.exe"
 
 
+# Checks if the next page button exists on the web page
 def check_next_page(driver):
 
     soup = BeautifulSoup(driver.page_source,"html.parser")
@@ -42,10 +43,15 @@ def check_next_page(driver):
         return True
     return False
 
+# allows us the navigate through the products catalogue
+def click_next_page(driver):
+    next = driver.find_element(By.XPATH,"//a[@class='action  next']")
+    next.click()
+
 def remove_accent(name):
+
     nfkd_form = unicodedata.normalize('NFKD',name)
     return u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
-
 
 
 def get_products(driver):
@@ -75,7 +81,7 @@ def get_product_details(driver,link):
         spec_dict[key] = val
     
     #Extracting the product price
-    prix = soup.find("span",{"class":"price"}).text.strip().replace("\xa0", " ")
+    prix = remove_accent(soup.find("span",{"class":"price"}).text.strip())
     spec_dict["Prix"] = prix
     return spec_dict  
 
@@ -111,19 +117,25 @@ def main():
                 break
     
         # Check the number of product pages in the site
-        print(check_next_page(driver)) 
+        #print(check_next_page(driver)) 
         
 
         # currently using only one product to test functionality
-
         pc_links = get_products(driver)
         for pc_link in pc_links:
             products.append(get_product_details(driver,pc_link))
             break 
+        
+        #return the catalogue page
+        driver.get(home_page)
+        # Testing moving through the cataloque pages  
+        if check_next_page(driver):
+            click_next_page(driver)
+            home_page = driver.current_url
 
         productsToFile(products)
 
-        driver.quit()
+        #driver.quit()
 
     except NoSuchElementException:
         pass
