@@ -53,6 +53,9 @@ def remove_accent(name):
     nfkd_form = unicodedata.normalize('NFKD',name)
     return u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
 
+def format_int(prix):
+    numeric_string = u"".join(c for c in prix if c.isdigit())
+    return int(numeric_string)
 
 def get_products(driver):
 
@@ -81,8 +84,8 @@ def get_product_details(driver,link):
         spec_dict[key] = val
     
     #Extracting the product price
-    prix = remove_accent(soup.find("span",{"class":"price"}).text.strip())
-    spec_dict["Prix"] = prix
+    prix = format_int(soup.find("span",{"class":"price"}).text.strip())
+    spec_dict["Prix_DT"] = prix
     return spec_dict  
 
 def productsToFile(products):
