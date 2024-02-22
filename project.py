@@ -140,7 +140,6 @@ def main():
             driver.get(home_page)
             # Testing moving through the cataloque pages  
             if check_next_page(driver):
-                break
                 click_next_page(driver)
                 home_page = driver.current_url
             else:
