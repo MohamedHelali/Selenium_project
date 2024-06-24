@@ -18,14 +18,9 @@ import unicodedata
 
 """
         
-        Extract all the links to each pc from the product listing pages ** Done
-        Extract the technical data for each pc as well as its price and availability ** Done
-        Store the newly aquired data in a .csv or .excel file ** Done
-
-        // TO DO
-        Replace accented character with their normal equivalant
-        make the script repeat all this tasks for pc_product provided by 
-
+        Extract all the links to each pc from the product listing pages **
+        Extract the technical data for each pc as well as its price and availability ** 
+        Store the newly aquired data in a .csv or .excel file ** 
         
 """
 
